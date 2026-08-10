@@ -27,7 +27,22 @@ const formula = (expr, formatter) => ({ type: T.FORMULA, property: { formula_exp
 // '@14.1' là chỗ giữ tạm, lúc chạy sẽ thay bằng table_id thật của bảng 14.1.
 const link = to => ({ type: T.LINK, property: { table_id: '@' + to, multiple: true } });
 
-// Thứ tự khai báo = thứ tự tạo cột. Công thức phải đứng SAU cột mà nó tham chiếu.
+// '@14.1' → '14.1'. Trả '' nếu không phải chỗ giữ tạm (đã là table_id thật).
+const linkKey = f => {
+  const t = f && f.property && f.property.table_id;
+  return typeof t === 'string' && t.startsWith('@') ? t.slice(1) : '';
+};
+// Thay '@14.1' bằng table_id thật. Dùng chung cho cả lúc tạo bảng lẫn lúc thêm cột lẻ.
+const resolveProp = (f, resolved) => {
+  const p = { ...f.property };
+  const key = linkKey(f);
+  if (key) p.table_id = resolved[key];
+  return p;
+};
+
+// Thứ tự khai báo = thứ tự cột trong bảng, kể cả cột liên kết.
+// Riêng CÔNG THỨC bị đẩy xuống cuối (phải tạo sau vì tham chiếu cột của chính bảng này),
+// nên hãy khai báo công thức ở cuối để thứ tự trên giấy khớp với thứ tự thật.
 const SPECS = [
   {
     key: '14.1',
@@ -157,9 +172,14 @@ const BASE = process.env.LARK_BASE_ID || process.env.LARK_APP_TOKEN || '';
 
     // ---- Bảng chưa có: tạo mới với các cột KHÔNG phải công thức/liên kết ----
     if (!hit) {
+      // Công thức LUÔN phải hoãn: nó tham chiếu cột của chính bảng đang tạo.
+      // Liên kết thì tạo được ngay trong payload tạo bảng, MIỄN LÀ bảng đích đã có table_id
+      // (SPECS xếp 14.1 trước nên tới 14.2/14.3 là đã resolve xong). Tạo ngay thì cột giữ
+      // ĐÚNG VỊ TRÍ khai báo — trước đây hoãn hết nên "Page" bị đẩy xuống cuối bảng.
       const simple = [], deferred = [];
       for (const [name, f] of Object.entries(spec.fields)) {
-        const isDeferred = f.type === T.FORMULA || f.type === T.LINK;
+        let isDeferred = f.type === T.FORMULA;
+        if (f.type === T.LINK) isDeferred = !resolved[linkKey(f)];
         (isDeferred ? deferred : simple).push([name, f]);
       }
       if (DRY) {
@@ -173,7 +193,7 @@ const BASE = process.env.LARK_BASE_ID || process.env.LARK_APP_TOKEN || '';
           table: {
             name: spec.name,
             default_view_name: 'Bảng',
-            fields: simple.map(([field_name, f]) => ({ field_name, type: f.type, ...(f.ui_type ? { ui_type: f.ui_type } : {}), ...(f.property ? { property: f.property } : {}) })),
+            fields: simple.map(([field_name, f]) => ({ field_name, type: f.type, ...(f.ui_type ? { ui_type: f.ui_type } : {}), ...(f.property ? { property: resolveProp(f, resolved) } : {}) })),
           },
         }),
       }, tk);
@@ -212,13 +232,10 @@ async function addField(tk, tableId, name, f, resolved) {
   const body = { field_name: name, type: f.type };
   if (f.ui_type) body.ui_type = f.ui_type;
   if (f.property) {
-    body.property = { ...f.property };
     // link('14.1') để tạm '@14.1' — giờ mới biết table_id thật để thay vào.
-    if (typeof body.property.table_id === 'string' && body.property.table_id.startsWith('@')) {
-      const key = body.property.table_id.slice(1);
-      if (!resolved[key]) { L.log(`  ! bỏ qua cột liên kết "${name}": chưa có bảng ${key}`); return; }
-      body.property.table_id = resolved[key];
-    }
+    const key = linkKey(f);
+    if (key && !resolved[key]) { L.log(`  ! bỏ qua cột liên kết "${name}": chưa có bảng ${key}`); return; }
+    body.property = resolveProp(f, resolved);
   }
   try {
     await L.api(`/open-apis/bitable/v1/apps/${process.env.LARK_BASE_ID || process.env.LARK_APP_TOKEN}/tables/${tableId}/fields`,
