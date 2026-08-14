@@ -65,7 +65,8 @@ Token này chỉ dùng để **Lark Base bấm nút gọi GitHub**. Cất kỹ, 
 
 ## Bước 2 — Fork repo
 
-Mở <https://github.com/hoangminhhoagpt-dot/mentor-club-facebook> → **Fork** → chọn tài khoản của bạn.
+Mở <https://github.com/giacatduan87/hoi-chu-tuong-facebook> → **Fork** → chọn tài khoản của bạn.
+
 
 ## Bước 3 — Bật Actions ⚠️
 
