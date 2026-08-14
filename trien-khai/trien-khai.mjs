@@ -44,7 +44,8 @@ const gh = async (url, opt = {}) => {
 const me = await gh('/user');
 if (me.status !== 200) die(`PAT không hợp lệ (${me.status}). Cần PAT classic có scope "repo".`);
 const OWNER = me.j.login;
-const REPO = (C.REPO_NAME || 'mentor-club-facebook').trim();
+const REPO = (C.REPO_NAME || 'hoi-chu-tuong-facebook').trim();
+
 const SLUG = `${OWNER}/${REPO}`;
 console.log(`\n== TRIỂN KHAI MODULE FACEBOOK → ${SLUG} ==\n`);
 
