@@ -18,8 +18,8 @@ Mỗi việc là một **action gọi bằng HTTP**, nên Lark Base bấm nút l
 Điền 4 giá trị vào đầu file rồi chạy. Script làm hết 5 bước: tạo bảng → lấy Page → tài khoản ads → số liệu ads theo ngày → bài viết.
 
 ```bash
-git clone https://github.com/hoangminhhoagpt-dot/mentor-club-facebook
-cd mentor-club-facebook
+git clone https://github.com/giacatduan87/hoi-chu-tuong-facebook
+cd hoi-chu-tuong-facebook
 ```
 
 ```powershell
