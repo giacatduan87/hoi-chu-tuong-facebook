@@ -13,7 +13,8 @@ Trong Lark Base: **Tự động hoá (Automation) → Tạo mới → …chọn 
 | **Headers** | `Authorization` : `Bearer ghp_xxxxxxxx` (PAT scope `repo`)<br>`Accept` : `application/vnd.github+json`<br>`Content-Type` : `application/json` |
 | **Body** | JSON — xem từng automation bên dưới |
 
-Thay `<OWNER>/<REPO>` bằng repo fork của bạn, ví dụ `hoangminhhoagpt-dot/mentor-club-facebook`.
+Mở <https://github.com/giacatduan87/hoi-chu-tuong-facebook> → **Fork** → chọn tài khoản của bạn.
+
 
 > GitHub trả về **204 No Content** (thân rỗng). Lark có thể hiện "phản hồi trống" — **đó là thành công**, không phải lỗi.
 
