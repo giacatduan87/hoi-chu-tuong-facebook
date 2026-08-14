@@ -20,7 +20,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const die = m => { console.error('\n✖ ' + m + '\n'); process.exit(1); };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-const SOURCE = 'hoangminhhoagpt-dot/mentor-club-facebook';
+const SOURCE = 'giacatduan87/hoi-chu-tuong-facebook';
+
 
 // ---------- 1. Đọc config ----------
 const cfgPath = path.join(__dirname, 'khach.config.json');
